@@ -1,0 +1,5 @@
+D:\onboarding mongoatlas1\mongoatlas1> createAdmin.js  to create the DB PASSWORD AUTHENTICATION 
+
+STEP1: Add the createAdmin.js in this folder
+STEP2: first time run "node createAdmin.js" to create a hashed password in db 
+STEP3: node app.js 

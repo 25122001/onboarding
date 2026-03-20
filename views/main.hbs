@@ -1,6 +1,8 @@
 {{!-- https://www.jwt.io/introduction#what-is-json-web-token-structure --}}
 
 
+{{!-- NOTE : WHEN TIMES SESSION IS NOT NEEDED UNCOMMENT THIS, ONLY APPLICABLE FOR ONLINE FREE SERVER  --}}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -289,10 +291,339 @@ window.onload = updateDisplay;
 </script>
 
 </body>
+</html> 
+
+
+
+
+
+{{!-- ------------------------------------------------------------------------------------------------------------- --}}
+
+{{!-- NOTE : WHEN TIMES SESSION IS NEEDED UNCOMMENT THIS, ONLY APPLICABLE FOR LOCAL SERVER IN DESKTOP APPLICATION --}}
+
+
+{{!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Tenant Initial Onboarding</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            width: 500px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        h3 {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        input[type="text"], input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        input[type="submit"], .refresh-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        input[type="submit"] {
+            background: #74ebd5;
+        }
+
+        .refresh-btn {
+            background: #888;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            background: #f5f5f5;
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .actions a {
+            margin-left: 10px;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+        }
+
+        .edit { background: #4CAF50; }
+        .delete { background: #f44336; }
+
+        #pagination button {
+            margin: 3px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .toggle-btn {
+            margin-left: 5px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .export-btn {
+            display: block;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏠 Tenant Onboarding</h1>
+
+    <div class="message">{{message}}</div>
+
+    {{#if edit_id}}
+        <h3>Edit Tenant</h3>
+        <form method="post" action="/update_book/{{edit_id}}" onsubmit="return validatePhone()">
+            <input type="text" name="title" value="{{edit_book.title}}" placeholder="Name" required>
+            <input type="text" name="author" value="{{edit_book.author}}" placeholder="Room" required>
+            <input type="tel" id="phone" name="phone" value="{{edit_book.phone}}" placeholder="Phone Number" required pattern="[0-9]{10}">
+            <div id="phoneError" class="error"></div>
+            <input type="submit" value="Update Tenant">
+            <button type="button" class="refresh-btn" onclick="refreshForm()">🔄 Refresh</button>
+        </form>
+    {{else}}
+        <h3>Add New Tenant</h3>
+        <form method="post" action="/store_book" onsubmit="return validatePhone()">
+            <input type="text" name="title" placeholder="Name" required>
+            <input type="text" name="author" placeholder="Room" required>
+            <input type="tel" id="phone" name="phone" placeholder="Phone Number" required pattern="[0-9]{10}">
+            <div id="phoneError" class="error"></div>
+            <input type="submit" value="Add Tenant">
+            <button type="button" class="refresh-btn" onclick="refreshForm()">🔄 Refresh</button>
+        </form>
+    {{/if}}
+
+    <input type="text" id="search" placeholder="🔍 Search tenants...">
+
+    <a href="/export" class="export-btn">📊 Export Tenants to Excel</a>
+
+    <ul>
+        {{#each books}}
+        <li class="book">
+            <span>
+                <strong>{{this.title}}</strong> — {{this.author}} <br>
+                📞 
+                <span class="phone" data-masked="{{this.phone}}">{{this.phone}}</span>
+                <button class="toggle-btn" onclick="togglePhone(this)">👁️</button>
+            </span>
+            <div class="actions">
+                <a class="edit" href="/?edit_id={{this._id}}">Edit</a>
+                <a class="delete" href="/?delete_id={{this._id}}" onclick="return confirm('Delete this tenant?')">Delete</a>
+            </div>
+        </li>
+        {{/each}}
+    </ul>
+
+    <div id="pagination"></div>
+</div>
+
+<script>
+let currentPage = 1;
+const perPage = 3;
+
+function togglePhone(btn) {
+    let phoneSpan = btn.previousElementSibling;
+
+    if (phoneSpan.dataset.full) {
+        phoneSpan.innerText = phoneSpan.dataset.masked;
+        phoneSpan.dataset.full = "";
+        btn.innerText = "👁️";
+    } else {
+        let masked = phoneSpan.dataset.masked;
+        let fakeFull = masked.replace("****", "1234");
+
+        phoneSpan.dataset.full = fakeFull;
+        phoneSpan.innerText = fakeFull;
+        btn.innerText = "🙈";
+    }
+}
+
+function validatePhone() {
+    let phone = document.getElementById('phone').value;
+    let error = document.getElementById('phoneError');
+
+    if (!/^\d{10}$/.test(phone)) {
+        error.innerText = "Phone number must be exactly 10 digits";
+        return false;
+    }
+
+    error.innerText = "";
+    return true;
+}
+
+function refreshForm() {
+    document.querySelector('form').reset();
+    document.getElementById('phoneError').innerText = '';
+}
+
+function getFilteredBooks() {
+    let search = document.getElementById('search').value.toLowerCase();
+    let books = document.querySelectorAll('.book');
+
+    return Array.from(books).filter(book =>
+        book.innerText.toLowerCase().includes(search)
+    );
+}
+
+function updateDisplay() {
+    let allBooks = document.querySelectorAll('.book');
+    let filtered = getFilteredBooks();
+
+    allBooks.forEach(book => book.style.display = 'none');
+
+    let start = (currentPage - 1) * perPage;
+    let end = start + perPage;
+
+    filtered.slice(start, end).forEach(book => {
+        book.style.display = 'flex';
+    });
+
+    setupPagination(filtered.length);
+}
+
+function setupPagination(totalItems) {
+    let pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+
+    let totalPages = Math.ceil(totalItems / perPage);
+
+    if (totalPages === 0) {
+        pagination.innerHTML = "<p>No tenants found</p>";
+        return;
+    }
+
+    for (let i = 1; i <= totalPages; i++) {
+        let btn = document.createElement('button');
+        btn.innerText = i;
+
+        if (i === currentPage) {
+            btn.style.background = '#333';
+            btn.style.color = '#fff';
+        } else {
+            btn.style.background = '#ddd';
+        }
+
+        btn.onclick = () => {
+            currentPage = i;
+            updateDisplay();
+        };
+
+        pagination.appendChild(btn);
+    }
+}
+
+document.getElementById('search').addEventListener('keyup', () => {
+    currentPage = 1;
+    updateDisplay();
+});
+
+window.onload = updateDisplay;
+</script>
+
+<!-- 🔐 SESSION AUTO LOGOUT (SAFE ADDITION) -->
+<script>
+const SESSION_TIMEOUT = 70000;
+const WARNING_TIME = 50000;
+
+let logoutTimer;
+let warningTimer;
+
+function startSessionTimers() {
+    warningTimer = setTimeout(() => {
+        alert("⚠️ Your session will expire in 20 seconds!");
+    }, WARNING_TIME);
+
+    logoutTimer = setTimeout(() => {
+        alert("⛔ Session expired!");
+        window.location.href = "/logout";
+    }, SESSION_TIMEOUT);
+}
+
+function resetSessionTimers() {
+    clearTimeout(logoutTimer);
+    clearTimeout(warningTimer);
+    startSessionTimers();
+}
+
+['click', 'mousemove', 'keypress', 'scroll'].forEach(event => {
+    document.addEventListener(event, resetSessionTimers);
+});
+
+window.addEventListener('load', () => {
+    startSessionTimers();
+});
+</script>
+
+</body>
 </html>
 
 
 
 
-
-
+ 
+ --}}
