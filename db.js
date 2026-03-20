@@ -7,7 +7,7 @@ async function getDatabase(){
       
 //=================>   santhosh = username , man3test = password      <=============================//
 
-    // for eg : san@sum  ====>  this "@" is not understood by atlas  so we need to encode that like "%40"   [or]     +encodedURIComponent('san@sum')+
+    // for eg : san@kum  ====>  this "@" is not understood by atlas  so we need to encode that like "%40"   [or]     +encodedURIComponent('san@sum')+
     
     
        console.log('Database connected');

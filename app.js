@@ -226,19 +226,28 @@ const bodyparser = require('body-parser');
 const exhbs = require('express-handlebars');
 const crypto = require('crypto');
 const session = require('express-session');
+const MongoStore = require('connect-mongo'); // ✅ ADDED
 const ExcelJS = require('exceljs');
-const bcrypt = require('bcrypt'); // ✅ ADDED
+const bcrypt = require('bcrypt');
 const dbo = require('./db');
 const BookModel = require('./models/bookModel');
 const UserModel = require('./models/userModel');
 
 dbo.getDatabase();
 
-// 🔐 SESSION SETUP
+// 🔐 SESSION SETUP (✅ IMPROVED)
 app.use(session({
-    secret: 'supersecretkey',
+    secret: process.env.SESSION_SECRET || 'supersecretkey', // ✅ improved
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false, // ✅ fixed
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/test' // ✅ adjust if needed
+    }),
+    cookie: {
+        httpOnly: true,
+        secure: false, // set true if HTTPS
+maxAge: 1000 * 60 * 3   // 3min
+    }
 }));
 
 // 🔐 Authentication middleware
@@ -294,8 +303,12 @@ app.set('view engine', 'hbs');
 app.set('views', 'views');
 app.use(bodyparser.urlencoded({ extended: true }));
 
-// 🔑 LOGIN PAGE
+// 🔑 LOGIN PAGE (✅ prevent access if already logged in)
 app.get('/login', (req, res) => {
+    if (req.session.user) {
+        return res.redirect('/');
+    }
+
     res.send(`
         <h2>🔐 Login</h2>
         <form method="post" action="/login">
@@ -306,7 +319,7 @@ app.get('/login', (req, res) => {
     `);
 });
 
-// 🔑 LOGIN HANDLE (✅ FIXED WITH BCRYPT)
+// 🔑 LOGIN HANDLE (✅ session regeneration added)
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -322,8 +335,13 @@ app.post('/login', async (req, res) => {
         return res.send('❌ Invalid credentials');
     }
 
-    req.session.user = user.username;
-    return res.redirect('/');
+    // ✅ Prevent session fixation
+    req.session.regenerate((err) => {
+        if (err) return res.send('Session error');
+
+        req.session.user = user._id; // ✅ better than username
+        res.redirect('/');
+    });
 });
 
 // 🔑 LOGOUT
