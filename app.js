@@ -1,7 +1,7 @@
 // node app.js  => to run the server
 // http://localhost:8000/  => to access the server
 
-/* const express = require('express');
+const express = require('express');
 const app = express();
 const bodyparser = require('body-parser');
 const exhbs = require('express-handlebars');
@@ -217,10 +217,10 @@ app.get('/export', isAuth, async (req, res) => {
 
 app.listen(8000, () => {
     console.log('Listening to 8000 port');
-}); */
+}); 
 
 
-const express = require('express');
+/* const express = require('express');
 const app = express();
 const bodyparser = require('body-parser');
 const exhbs = require('express-handlebars');
@@ -463,4 +463,4 @@ app.get('/export', isAuth, async (req, res) => {
 
 app.listen(8000, () => {
     console.log('Listening to 8000 port');
-});
+}); */
