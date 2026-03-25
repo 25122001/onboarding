@@ -5,11 +5,12 @@
 
 {{!-- NOTE : THIS IS GIT LIVE RUNNING MODULE --}}
 
- <!DOCTYPE html>
+ <!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>New Tenant Initial Onboarding</title>
 
     <style>
@@ -119,7 +120,6 @@
             cursor: pointer;
         }
 
-        /* NEW (no conflict) */
         .export-btn {
             display: block;
             text-align: center;
@@ -155,18 +155,17 @@
         <form method="post" action="/store_book" onsubmit="return validatePhone()">
             <input type="text" name="title" placeholder="Name" required>
             <input type="text" name="author" placeholder="Room" required>
-          <input type="tel" id="phone" name="phone" placeholder="Phone Number"
-       required maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,10)">
+            <input type="tel" id="phone" name="phone" placeholder="Phone Number"
+                   required maxlength="10"
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,10)">
             <div id="phoneError" class="error"></div>
             <input type="submit" value="Add Tenant">
             <button type="button" class="refresh-btn" onclick="refreshForm()">🔄 Refresh</button>
         </form>
     {{/if}}
 
-    <!-- Search -->
     <input type="text" id="search" placeholder="🔍 Search tenants...">
 
-    <!-- ✅ NEW EXPORT BUTTON (ONLY ADDITION) -->
     <a href="/export" class="export-btn">📊 Export Tenants to Excel</a>
 
     <ul>
@@ -180,13 +179,12 @@
             </span>
             <div class="actions">
                 <a class="edit" href="/?edit_id={{this._id}}">Edit</a>
-                <a class="delete" href="/?delete_id={{this._id}}" onclick="return confirm('Delete this tenant?')">Delete</a>
+                <a class="delete" href="#" onclick="confirmDelete('{{this._id}}')">Delete</a>
             </div>
         </li>
         {{/each}}
     </ul>
 
-    <!-- Pagination -->
     <div id="pagination"></div>
 </div>
 
@@ -224,9 +222,46 @@ function validatePhone() {
     return true;
 }
 
+/* ✅ UPDATED ONLY THIS FUNCTION */
 function refreshForm() {
-    document.querySelector('form').reset();
-    document.getElementById('phoneError').innerText = '';
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This will clear all form fields!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#74ebd5',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, refresh it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.querySelector('form').reset();
+            document.getElementById('phoneError').innerText = '';
+
+            Swal.fire({
+                title: 'Cleared!',
+                text: 'Form has been refreshed.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    });
+}
+
+function confirmDelete(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This action cannot be undone!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#f44336',
+        cancelButtonColor: '#888',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '/?delete_id=' + id;
+        }
+    });
 }
 
 function getFilteredBooks() {
@@ -293,8 +328,53 @@ document.getElementById('search').addEventListener('keyup', () => {
 window.onload = updateDisplay;
 </script>
 
+<script>
+/* ✅ SweetAlert for success message (Add Tenant / Update / Delete) */
+window.addEventListener('load', function () {
+    const message = `{{message}}`;
+
+    if (message && message.trim() !== "") {
+        Swal.fire({
+            title: 'Success',
+            text: message,
+            icon: 'success',
+            confirmButtonColor: '#74ebd5'
+        });
+    }
+});
+</script>
+
+{{!-- <script>
+window.addEventListener('load', function () {
+    const message = `{{message}}`;
+
+    if (message && message.trim() !== "") {
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000, // ⏱️ auto hide (2 sec)
+            timerProgressBar: true
+        });
+
+        let iconType = 'success';
+
+        // detect error message
+        if (message.toLowerCase().includes('duplicate')) {
+            iconType = 'error';
+        }
+
+        Toast.fire({
+            icon: iconType,
+            title: message
+        });
+    }
+});
+</script> --}}
+
 </body>
-</html> 
+</html>
 
 
 
