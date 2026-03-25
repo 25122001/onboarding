@@ -388,7 +388,9 @@ app.listen(8000, () => {
 // -------------------------------------------------------------------------------------------------------------
 
 // NOTE : WHEN TIMES SESSION IS NOT NEEDED UNCOMMENT THIS, ONLY APPLICABLE FOR ONLINE FREE SERVER 
-//        WITH DB PASSWORD VALIDATION BY HASHING TECHNIQUE
+//        WITH DB PASSWORD VALIDATION BY HASHING TECHNIQUE  
+
+// NOTE : THIS IS GIT LIVE RUNNING MODULE ..still we used session here i think it takes one minutes switch off other tab it close and shift admin login page 
 
 
 
@@ -857,7 +859,7 @@ app.listen(8000, () => {
 
 
 
-
+ 
 
  
 
@@ -870,7 +872,7 @@ app.listen(8000, () => {
 
 
 
-/* const express = require('express');
+ /* const express = require('express');
 const app = express();
 const bodyparser = require('body-parser');
 const exhbs = require('express-handlebars');
@@ -1349,4 +1351,4 @@ app.get('/export', isAuth, async (req, res) => {
 
 app.listen(8000, () => {
     console.log('Listening to 8000 port');
-});  */
+});   */

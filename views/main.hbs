@@ -3,7 +3,9 @@
 
 {{!-- NOTE : WHEN TIMES SESSION IS NOT NEEDED UNCOMMENT THIS, ONLY APPLICABLE FOR ONLINE FREE SERVER  --}}
 
-<!DOCTYPE html>
+{{!-- NOTE : THIS IS GIT LIVE RUNNING MODULE --}}
+
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -153,7 +155,8 @@
         <form method="post" action="/store_book" onsubmit="return validatePhone()">
             <input type="text" name="title" placeholder="Name" required>
             <input type="text" name="author" placeholder="Room" required>
-            <input type="tel" id="phone" name="phone" placeholder="Phone Number" required pattern="[0-9]{10}">
+          <input type="tel" id="phone" name="phone" placeholder="Phone Number"
+       required maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,10)">
             <div id="phoneError" class="error"></div>
             <input type="submit" value="Add Tenant">
             <button type="button" class="refresh-btn" onclick="refreshForm()">🔄 Refresh</button>
