@@ -1063,7 +1063,7 @@ app.get('/login', (req, res) => {
     `);
 });
 
-// 🔑 LOGIN HANDLE (✅ FIXED WITH BCRYPT)
+/* // 🔑 LOGIN HANDLE (✅ FIXED WITH BCRYPT)
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -1082,6 +1082,188 @@ app.post('/login', async (req, res) => {
     req.session.user = user.username;
     return res.redirect('/');
 });
+ */
+
+
+
+// 🔑 LOGIN HANDLE (✅ session regeneration added)
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    const user = await UserModel.findOne({ username });
+
+    if (!user) {
+        //return res.send('❌ Invalid credentials');
+        return res.send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Error</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #ff758c, #ff7eb3);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .error-card {
+        background: #fff;
+        padding: 40px;
+        width: 360px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+
+    .icon {
+        font-size: 50px;
+        margin-bottom: 10px;
+    }
+
+    h2 {
+        margin: 10px 0;
+        color: #333;
+    }
+
+    p {
+        color: #555;
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #667eea;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: 0.3s;
+    }
+
+    .btn:hover {
+        background: #5a67d8;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="error-card">
+<div class="icon">🚫</div>
+
+    <h2>Unauthorized Access</h2>
+
+
+    <p>You are not allowed to view this page.</p>
+
+    <a href="/login" class="btn">🔙 Back to Login</a>
+</div>
+
+</body>
+</html>
+`);
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+        //return res.send('❌ Invalid credentials');
+        return res.send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Error</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #ff758c, #ff7eb3);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .error-card {
+        background: #fff;
+        padding: 40px;
+        width: 360px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+
+    .icon {
+        font-size: 50px;
+        margin-bottom: 10px;
+    }
+
+    h2 {
+        margin: 10px 0;
+        color: #333;
+    }
+
+    p {
+        color: #555;
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #667eea;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: 0.3s;
+    }
+
+    .btn:hover {
+        background: #5a67d8;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="error-card">
+    <div class="icon">🚫</div>
+
+    <h2>Unauthorized Access</h2>
+
+
+    <p>You are not allowed to view this page.</p>
+    <a href="/login" class="btn">🔙 Back to Login</a>
+</div>
+
+</body>
+</html>
+`);
+    }
+
+    // ✅ Prevent session fixation
+    req.session.regenerate((err) => {
+        if (err) return res.send('Session error');
+
+        req.session.user = user._id; // ✅ better than username
+        res.redirect('/');
+    });
+});
+
+
+
+
+
+
+
 
 // 🔑 LOGOUT
 app.get('/logout', (req, res) => {
