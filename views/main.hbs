@@ -131,6 +131,37 @@
             text-decoration: none;
             font-weight: bold;
         }
+                /* ✅ RESPONSIVE SWEETALERT FIX */
+        .swal2-popup {
+            width: 95% !important;
+            max-width: 420px !important;
+            border-radius: 12px !important;
+        }
+
+        .swal2-input {
+            width: 100% !important;
+            margin: 10px 0 !important;
+            padding: 10px !important;
+            font-size: 14px !important;
+            border-radius: 8px !important;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .swal2-popup {
+                width: 95% !important;
+                max-width: none !important;
+                padding: 15px !important;
+            }
+
+            .swal2-title {
+                font-size: 18px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -222,11 +253,12 @@ function openEditModal(el, id, name, room) {
 
     Swal.fire({
         title: 'Edit Tenant',
+        width: '100%',
         html: `
-            <input id="swal-name" class="swal2-input" value="${name}">
-            <input id="swal-room" class="swal2-input" value="${room}">
-            <input id="swal-phone" class="swal2-input" value="${fullPhone}" maxlength="10">
-            <div id="swal-error" style="color:red;font-size:12px;"></div>
+            <input id="swal-name" class="swal2-input" placeholder="Name" value="${name}">
+            <input id="swal-room" class="swal2-input"  placeholder="Room" value="${room}">
+            <input id="swal-phone" class="swal2-input" placeholder="Phone Number" value="${fullPhone}" maxlength="10">
+            <div id="swal-error" style="color:red;font-size:12px;;text-align:left;"></div>
         `,
         confirmButtonText: 'Update',
         confirmButtonColor: '#4CAF50',
