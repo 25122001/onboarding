@@ -222,7 +222,6 @@ function validatePhone() {
     return true;
 }
 
-/* ✅ UPDATED ONLY THIS FUNCTION */
 function refreshForm() {
     Swal.fire({
         title: 'Are you sure?',
@@ -328,23 +327,8 @@ document.getElementById('search').addEventListener('keyup', () => {
 window.onload = updateDisplay;
 </script>
 
+<!-- ✅ FINAL FIXED SWEETALERT TOAST -->
 <script>
-/* ✅ SweetAlert for success message (Add Tenant / Update / Delete) */
-window.addEventListener('load', function () {
-    const message = `{{message}}`;
-
-    if (message && message.trim() !== "") {
-        Swal.fire({
-            title: 'Success',
-            text: message,
-            icon: 'success',
-            confirmButtonColor: '#74ebd5'
-        });
-    }
-});
-</script>
-
-{{!-- <script>
 window.addEventListener('load', function () {
     const message = `{{message}}`;
 
@@ -354,14 +338,17 @@ window.addEventListener('load', function () {
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
-            timer: 2000, // ⏱️ auto hide (2 sec)
+            timer: 2500,
             timerProgressBar: true
         });
 
         let iconType = 'success';
 
-        // detect error message
-        if (message.toLowerCase().includes('duplicate')) {
+        if (
+            message.toLowerCase().includes('duplicate') ||
+            message.toLowerCase().includes('e11000') ||
+            message.toLowerCase().includes('already exists')
+        ) {
             iconType = 'error';
         }
 
@@ -371,12 +358,10 @@ window.addEventListener('load', function () {
         });
     }
 });
-</script> --}}
+</script>
 
 </body>
 </html>
-
-
 
 
 
