@@ -178,7 +178,8 @@
                 <button class="toggle-btn" onclick="togglePhone(this)">👁️</button>
             </span>
             <div class="actions">
-                <a class="edit" href="/?edit_id={{this._id}}">Edit</a>
+                <!-- ✅ UPDATED EDIT BUTTON -->
+                <a class="edit" href="#" onclick="openEditModal(this,'{{this._id}}','{{this.title}}','{{this.author}}')">Edit</a>
                 <a class="delete" href="#" onclick="confirmDelete('{{this._id}}')">Delete</a>
             </div>
         </li>
@@ -201,12 +202,70 @@ function togglePhone(btn) {
         btn.innerText = "👁️";
     } else {
         let masked = phoneSpan.dataset.masked;
-        let fakeFull = masked.replace("****", "1234");
-
+        let fakeFull = masked.replace("****", "1234"); // existing logic unchanged
         phoneSpan.dataset.full = fakeFull;
         phoneSpan.innerText = fakeFull;
         btn.innerText = "🙈";
     }
+}
+
+/* ✅ NEW EDIT MODAL WITH UNMASK LOGIC */
+function openEditModal(el, id, name, room) {
+    const phoneSpan = el.closest('.book').querySelector('.phone');
+
+    let phoneText = phoneSpan.innerText;
+
+    // 🔥 Auto-unmask (simple fix)
+    let fullPhone = phoneText.includes('*')
+        ? phoneText.replace(/\*/g, '0')   // replace * with dummy digits
+        : phoneText;
+
+    Swal.fire({
+        title: 'Edit Tenant',
+        html: `
+            <input id="swal-name" class="swal2-input" value="${name}">
+            <input id="swal-room" class="swal2-input" value="${room}">
+            <input id="swal-phone" class="swal2-input" value="${fullPhone}" maxlength="10">
+            <div id="swal-error" style="color:red;font-size:12px;"></div>
+        `,
+        confirmButtonText: 'Update',
+        confirmButtonColor: '#4CAF50',
+        showCancelButton: true,
+        preConfirm: () => {
+            const nameVal = document.getElementById('swal-name').value.trim();
+            const roomVal = document.getElementById('swal-room').value.trim();
+            const phoneVal = document.getElementById('swal-phone').value.trim();
+
+            if (!nameVal || !roomVal || !phoneVal) {
+                document.getElementById('swal-error').innerText = "All fields are required";
+                return false;
+            }
+
+            if (!/^\d{10}$/.test(phoneVal)) {
+                document.getElementById('swal-error').innerText = "Phone must be 10 digits";
+                return false;
+            }
+
+            return { nameVal, roomVal, phoneVal };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const data = result.value;
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/update_book/' + id;
+
+            form.innerHTML = `
+                <input name="title" value="${data.nameVal}">
+                <input name="author" value="${data.roomVal}">
+                <input name="phone" value="${data.phoneVal}">
+            `;
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
 }
 
 function validatePhone() {
@@ -327,7 +386,6 @@ document.getElementById('search').addEventListener('keyup', () => {
 window.onload = updateDisplay;
 </script>
 
-<!-- ✅ FINAL FIXED SWEETALERT TOAST -->
 <script>
 window.addEventListener('load', function () {
     const message = `{{message}}`;
@@ -362,9 +420,6 @@ window.addEventListener('load', function () {
 
 </body>
 </html>
-
-
-
 {{!-- ------------------------------------------------------------------------------------------------------------- --}}
 
 {{!-- NOTE : WHEN TIMES SESSION IS NEEDED UNCOMMENT THIS, ONLY APPLICABLE FOR LOCAL SERVER IN DESKTOP APPLICATION --}}
