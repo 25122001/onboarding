@@ -289,10 +289,10 @@ function openEditModal(el, id, name, room) {
             form.action = '/update_book/' + id;
 
             form.innerHTML = `
-                <input name="title" value="${data.nameVal}">
-                <input name="author" value="${data.roomVal}">
-                <input name="phone" value="${data.phoneVal}">
-            `;
+    <input type="hidden" name="title" value="${data.nameVal}">
+    <input type="hidden" name="author" value="${data.roomVal}">
+    <input type="hidden" name="phone" value="${data.phoneVal}">
+`;
 
             document.body.appendChild(form);
             form.submit();
